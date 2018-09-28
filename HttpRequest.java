@@ -1,12 +1,14 @@
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 
 public class HttpRequest implements Runnable {
   private final static String CRLF = "\r\n";
   private Socket socket;
 
-  public HttpRequest(Socket socket) throws Exception { this.socket = socket; }
+  public HttpRequest(Socket socket) throws Exception {
+    this.socket = socket;
+  }
 
   public void run() {
     try {
@@ -61,10 +63,9 @@ public class HttpRequest implements Runnable {
       statusLine = version + " 404 Not Found" + CRLF;
 
       // https://github.com/sockjs/sockjs-protocol/issues/17
-      contentTypeLine = "(text/html)";
+      contentTypeLine = "Content-type: (text/html)" + CRLF;
 
-      entityBody =
-          "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
+      entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
     }
 
     // Send the status line.
@@ -83,7 +84,6 @@ public class HttpRequest implements Runnable {
       }
       fis.close();
     } else {
-      System.out.println("Sending 404 entity: " + entityBody);
       os.writeBytes(entityBody);
     }
 
@@ -110,8 +110,7 @@ public class HttpRequest implements Runnable {
     return "(application/octet-stream)";
   }
 
-  private static void sendBytes(FileInputStream fis, OutputStream os)
-      throws Exception {
+  private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
     // Construct a 1K buffer to hold bytes on their way to the socket.
     byte[] buffer = new byte[1024];
     int bytes = 0;
