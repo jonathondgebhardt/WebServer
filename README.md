@@ -5,7 +5,7 @@
 
 ## Versioning
 
-GitHub: https://github.com/jonathondgebhardt/SchedulingSimulator
+GitHub: https://github.com/jonathondgebhardt/WebServer
 
 ## Authors
 
