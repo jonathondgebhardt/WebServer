@@ -52,6 +52,7 @@ public class HttpRequest implements Runnable {
     // Open the requested file.
     FileInputStream fis = null;
     boolean fileExists = true;
+
     try {
       fis = new FileInputStream(fileName);
     } catch (FileNotFoundException e) {
@@ -69,13 +70,9 @@ public class HttpRequest implements Runnable {
     } else {
       if (!contentType(fileName).equalsIgnoreCase("(text/plain)")) {
         statusLine = version + " 404 Not Found" + CRLF;
-
-        // https://github.com/sockjs/sockjs-protocol/issues/17
         contentTypeLine = "Content-type: (text/html)" + CRLF;
-
         entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
       } else {
-
         // create an instance of ftp client
         FtpClient ftp = new FtpClient();
 
@@ -89,13 +86,23 @@ public class HttpRequest implements Runnable {
         // disconnect from ftp server
         ftp.disconnect();
 
-        // assign input stream to read the recently ftp-downloaded file
-        fis = new FileInputStream(fileName);
+        try {
+          // assign input stream to read the recently ftp-downloaded file
+          fis = new FileInputStream(fileName);
 
-        // else retrieve the text (.txt) file from your local FTP server
-        statusLine = version + " 200 OK" + CRLF;
-        contentTypeLine = "Content-type: (text/plain)" + CRLF;
-        fileExists = true;
+          // else retrieve the text (.txt) file from your local FTP server
+          statusLine = version + " 200 OK" + CRLF;
+          contentTypeLine = "Content-type: (text/plain)" + CRLF;
+
+          fileExists = true;
+        } catch (FileNotFoundException e) {
+          statusLine = version + " 404 Not Found" + CRLF;
+          contentTypeLine = "Content-type: (text/html)" + CRLF;
+          entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
+
+          fileExists = false;
+        }
+
       }
 
     }

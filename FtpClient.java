@@ -145,10 +145,10 @@ public class FtpClient {
             if (!response.startsWith(String.valueOf(expected_response_code))) {
                 throw new IOException("Bad response: " + response);
             }
-
         } catch (IOException ex) {
             System.out.println("IOException: " + ex);
         }
+
         return response;
     }
 
@@ -162,8 +162,8 @@ public class FtpClient {
      */
     private boolean checkResponse(int expected_code) {
         boolean response_status = true;
-        try {
 
+        try {
             currentResponse = controlReader.readLine();
 
             if (DEBUG) {
@@ -174,7 +174,6 @@ public class FtpClient {
                 response_status = false;
                 throw new IOException("Bad response: " + currentResponse);
             }
-
         } catch (IOException ex) {
             System.out.println("IOException: " + ex);
         }
@@ -232,7 +231,6 @@ public class FtpClient {
 
             dis.close();
             fos.close();
-
         } catch (FileNotFoundException ex) {
             System.out.println("FileNotFoundException" + ex);
         } catch (IOException ex) {
