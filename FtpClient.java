@@ -2,14 +2,13 @@ import java.io.*;
 import java.net.*;
 import java.util.regex.*;
 
-// clang-format off
 /**
  * Class: CEG4400-01 Assignment: Project 01 Instructor: Dr. Bin Wang TA: Steve
  * Betts
  * 
  * @author Jonathon Gebhardt
  */
-// clang-format on
+
 public class FtpClient {
 
     final static String CRLF = "\r\n";

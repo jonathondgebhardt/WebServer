@@ -1,5 +1,5 @@
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -21,7 +21,7 @@ public class HttpRequest implements Runnable {
     try {
       processRequest();
     } catch (Exception e) {
-      System.out.println(e);
+      e.printStackTrace();
     }
   }
 
@@ -40,51 +40,21 @@ public class HttpRequest implements Runnable {
     // Tokenize request line
     StringTokenizer tokens = new StringTokenizer(requestLine);
 
-    // Skip command
-    tokens.nextToken();
-
-    // Prepend a "." so that file request is within the current directory.
-    String fileName = tokens.nextToken();
-    fileName = "." + fileName;
-
-    String version = tokens.nextToken();
-
-    // Open the requested file.
-    FileInputStream fis = null;
-    boolean fileExists = true;
-    try {
-      fis = new FileInputStream(fileName);
-    } catch (FileNotFoundException e) {
-      fileExists = false;
-    }
-
     // Construct the response message.
     String statusLine = null;
     String contentTypeLine = null;
     String entityBody = null;
 
     if (fileExists) {
-      statusLine = version + " 200 Accepted";
+      statusLine = version + " 200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
     } else {
-      if (!contentType(fileName).equalsIgnoreCase(?)) {
-        statusLine = ?;
-        contentTypeLine = ?;
-        entityBody = "<HTML>" +
-        "<HEAD><TITLE>Not Found</TITLE></HEAD>" +
-        "<BODY>Not Found</BODY></HTML>";
-      } else { // else retrieve the text (.txt) file from your local FTP server
-        statusLine = version + " 404 Not Found";
+      statusLine = version + " 404 Not Found" + CRLF;
 
-        // https://github.com/sockjs/sockjs-protocol/issues/17
-        contentTypeLine = "text/plain; charset=UTF-8";
-  
-        entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
-        // disconnect from ftp server
-        // assign input stream to read the recently ftp-downloaded file
-        fis = new FileInputStream(fileName);
-      }
-      
+      // https://github.com/sockjs/sockjs-protocol/issues/17
+      contentTypeLine = "Content-type: (text/html)" + CRLF;
+
+      entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
     }
 
     // Send the status line.
@@ -103,7 +73,6 @@ public class HttpRequest implements Runnable {
       }
       fis.close();
     } else {
-      System.out.println("Sending 404 entity.");
       os.writeBytes(entityBody);
     }
 
@@ -115,16 +84,19 @@ public class HttpRequest implements Runnable {
 
   private static String contentType(String fileName) {
     if (fileName.endsWith(".htm") || fileName.endsWith(".html")) {
-      return "text/html";
+      return "(text/html)";
     }
-    // if(?) {
-    // ?;
-    // }
-    // if(?) {
-    // ?;
-    // }
+    if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+      return "(image/jpeg)";
+    }
+    if (fileName.endsWith(".png")) {
+      return "(image/png)";
+    }
+    if (fileName.endsWith(".gif")) {
+      return "(image/gif)";
+    }
 
-    return "application/octet-stream";
+    return "(application/octet-stream)";
   }
 
   private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
