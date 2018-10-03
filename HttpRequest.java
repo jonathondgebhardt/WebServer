@@ -76,20 +76,25 @@ public class HttpRequest implements Runnable {
         entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
       } else {
         // else retrieve the text (.txt) file from your local FTP server
-        // statusLine = ?;
-        // contentTypeLine = ?;
+        statusLine = version + " 200 OK" + CRLF;
+        contentTypeLine = "Content-type: (text/plain)" + CRLF;
+
         // create an instance of ftp client
         FtpClient ftp = new FtpClient();
 
         // connect to the ftp server
-        ftp.connect("jon", "");
+        ftp.connect("jon", "Vibrato2019$");
 
         // retrieve the file from the ftp server, remember you need to
         // first upload this file to the ftp server under your user ftp directory
+        ftp.getFile(fileName);
 
         // disconnect from ftp server
+        ftp.disconnect();
+
         // assign input stream to read the recently ftp-downloaded file
         fis = new FileInputStream(fileName);
+        fileExists = true;
       }
 
     }
