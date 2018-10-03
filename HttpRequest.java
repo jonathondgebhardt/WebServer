@@ -75,9 +75,6 @@ public class HttpRequest implements Runnable {
 
         entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
       } else {
-        // else retrieve the text (.txt) file from your local FTP server
-        statusLine = version + " 200 OK" + CRLF;
-        contentTypeLine = "Content-type: (text/plain)" + CRLF;
 
         // create an instance of ftp client
         FtpClient ftp = new FtpClient();
@@ -94,6 +91,10 @@ public class HttpRequest implements Runnable {
 
         // assign input stream to read the recently ftp-downloaded file
         fis = new FileInputStream(fileName);
+
+        // else retrieve the text (.txt) file from your local FTP server
+        statusLine = version + " 200 OK" + CRLF;
+        contentTypeLine = "Content-type: (text/plain)" + CRLF;
         fileExists = true;
       }
 

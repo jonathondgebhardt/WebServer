@@ -90,10 +90,10 @@ public class FtpClient {
             DataInputStream data_reader = new DataInputStream(data_socket.getInputStream());
 
             // download file from ftp server
-            sendCommand("RETR " + file_name + CRLF, 150);
+            currentResponse = sendCommand("RETR " + file_name + CRLF, 150);
 
             // check if the transfer was succesful
-            if (checkResponse(226)) {
+            if (currentResponse.startsWith(String.valueOf(226))) {
                 // Write data on a local file
                 createLocalFile(data_reader, file_name);
             }
