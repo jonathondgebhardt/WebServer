@@ -40,6 +40,24 @@ public class HttpRequest implements Runnable {
     // Tokenize request line
     StringTokenizer tokens = new StringTokenizer(requestLine);
 
+    // Skip command
+    tokens.nextToken();
+
+    // Prepend a "." so that file request is within the current directory.
+    String fileName = tokens.nextToken();
+    fileName = "." + fileName;
+
+    String version = tokens.nextToken();
+
+    // Open the requested file.
+    FileInputStream fis = null;
+    boolean fileExists = true;
+    try {
+      fis = new FileInputStream(fileName);
+    } catch (FileNotFoundException e) {
+      fileExists = false;
+    }
+
     // Construct the response message.
     String statusLine = null;
     String contentTypeLine = null;
@@ -49,12 +67,31 @@ public class HttpRequest implements Runnable {
       statusLine = version + " 200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
     } else {
-      statusLine = version + " 404 Not Found" + CRLF;
+      if (!contentType(fileName).equalsIgnoreCase("(text/plain)")) {
+        statusLine = version + " 404 Not Found" + CRLF;
 
-      // https://github.com/sockjs/sockjs-protocol/issues/17
-      contentTypeLine = "Content-type: (text/html)" + CRLF;
+        // https://github.com/sockjs/sockjs-protocol/issues/17
+        contentTypeLine = "Content-type: (text/html)" + CRLF;
 
-      entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
+        entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
+      } else {
+        // else retrieve the text (.txt) file from your local FTP server
+        // statusLine = ?;
+        // contentTypeLine = ?;
+        // create an instance of ftp client
+        FtpClient ftp = new FtpClient();
+
+        // connect to the ftp server
+        ftp.connect("jon", "");
+
+        // retrieve the file from the ftp server, remember you need to
+        // first upload this file to the ftp server under your user ftp directory
+
+        // disconnect from ftp server
+        // assign input stream to read the recently ftp-downloaded file
+        fis = new FileInputStream(fileName);
+      }
+
     }
 
     // Send the status line.
@@ -85,6 +122,9 @@ public class HttpRequest implements Runnable {
   private static String contentType(String fileName) {
     if (fileName.endsWith(".htm") || fileName.endsWith(".html")) {
       return "(text/html)";
+    }
+    if (fileName.endsWith(".txt")) {
+      return "(text/plain)";
     }
     if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
       return "(image/jpeg)";
