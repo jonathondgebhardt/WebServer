@@ -57,12 +57,8 @@ public class FtpClient {
                 }
             }
 
-            // send user name and password to ftp server
-            sendCommand("help", 211);
-            sendCommand("help", 214);
-
-            // sendCommand("user " + username, 230);
-            // sendCommand("pass " + password, 230);
+            sendCommand("user " + username, 230);
+            sendCommand("pass " + password, 230);
 
         } catch (UnknownHostException ex) {
             System.out.println("UnknownHostException: " + ex);
