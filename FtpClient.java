@@ -14,7 +14,7 @@ public class FtpClient {
 
     final static String CRLF = "\r\n";
     private boolean FILEZILLA = false; // Enabled if connecting to FILEZILLA Server
-    private boolean DEBUG = false; // Debug Flag
+    private boolean DEBUG = true; // Debug Flag
     private Socket controlSocket = null;
     private BufferedReader controlReader = null;
     private DataOutputStream controlWriter = null;
@@ -36,13 +36,18 @@ public class FtpClient {
     public void connect(String username, String password) {
         try {
             // establish the control socket
+            controlSocket = new Socket("127.0.0.1", 21);
 
             // get references to the socket input and output streams
+            InputStreamReader is = new InputStreamReader(this.controlSocket.getInputStream());
+            this.controlReader = new BufferedReader(is);
+            this.controlWriter = new DataOutputStream(this.controlSocket.getOutputStream());
 
             // check if the initial connection response code is OK
-            // if (checkResponse(?)) {
-            // System.out.println("Succesfully connected to FTP server");
-            // }
+            int OK_RESPONSE = 220;
+            if (checkResponse(OK_RESPONSE)) {
+                System.out.println("Succesfully connected to FTP server");
+            }
 
             if (FILEZILLA) {
                 for (int i = 0; i < 2; i++) {
@@ -54,6 +59,11 @@ public class FtpClient {
             }
 
             // send user name and password to ftp server
+            sendCommand("help", 211);
+            sendCommand("help", 214);
+
+            // sendCommand("user " + username, 230);
+            // sendCommand("pass " + password, 230);
 
         } catch (UnknownHostException ex) {
             System.out.println("UnknownHostException: " + ex);
@@ -69,30 +79,30 @@ public class FtpClient {
      */
     public void getFile(String file_name) {
         int data_port = 0; // initialize the data port
-        try {
-            // change to current (root) directory first
-            // sendCommand();
+                           // try {
+                           // // change to current (root) directory first
+                           // // sendCommand();
 
-            // set to passive mode and retrieve the data port number from response
-            // currentResponse = sendCommand();
-            // data_port = ?;
+        // // set to passive mode and retrieve the data port number from response
+        // // currentResponse = sendCommand();
+        // // data_port = ?;
 
-            // connect to the data port
-            // Socket data_socket = ?
-            // DataInputStream data_reader = ?
+        // // connect to the data port
+        // // Socket data_socket = ?
+        // // DataInputStream data_reader = ?
 
-            // download file from ftp server
+        // // download file from ftp server
 
-            // check if the transfer was succesful
+        // // check if the transfer was succesful
 
-            // Write data on a local file
-            createLocalFile(data_reader, file_name);
+        // // Write data on a local file
+        // // createLocalFile(data_reader, file_name);
 
-        } catch (UnknownHostException ex) {
-            System.out.println("UnknownHostException: " + ex);
-        } catch (IOException ex) {
-            System.out.println("IOException: " + ex);
-        }
+        // } catch (UnknownHostException ex) {
+        // System.out.println("UnknownHostException: " + ex);
+        // } catch (IOException ex) {
+        // System.out.println("IOException: " + ex);
+        // }
     }
 
     /*
