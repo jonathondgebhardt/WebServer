@@ -27,20 +27,16 @@ public class HttpRequest implements Runnable {
 
   private void processRequest() throws Exception {
     // Get a reference to the socket's input and output streams.
-    InputStreamReader is = new InputStreamReader(this.socket.getInputStream());
+    BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
     DataOutputStream os = new DataOutputStream(this.socket.getOutputStream());
 
-    // Set up input stream filters.
-    BufferedReader br = new BufferedReader(is);
-
     // Get the request line of the HTTP request message.
-    // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
     String requestLine = br.readLine();
 
-    // Tokenize request line
+    // Tokenize request line.
     StringTokenizer tokens = new StringTokenizer(requestLine);
 
-    // Skip command
+    // Skip command.
     tokens.nextToken();
 
     // Prepend a "." so that file request is within the current directory.
@@ -52,7 +48,6 @@ public class HttpRequest implements Runnable {
     // Open the requested file.
     FileInputStream fis = null;
     boolean fileExists = true;
-
     try {
       fis = new FileInputStream(fileName);
     } catch (FileNotFoundException e) {
@@ -65,46 +60,44 @@ public class HttpRequest implements Runnable {
     String entityBody = null;
 
     if (fileExists) {
+      // File exists on the server.
       statusLine = version + " 200 OK" + CRLF;
       contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
     } else {
-      if (!contentType(fileName).equalsIgnoreCase("(text/plain)")) {
-        statusLine = version + " 404 Not Found" + CRLF;
-        contentTypeLine = "Content-type: (text/html)" + CRLF;
-        entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
-      } else {
-        // create an instance of ftp client
+      // File doesn't exist on the server. Initializing response message with 404 in
+      // case file is not on ftp server either.
+      statusLine = version + " 404 Not Found" + CRLF;
+      contentTypeLine = "Content-type: (text/html)" + CRLF;
+      entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
+
+      if (contentType(fileName).equalsIgnoreCase("(text/plain)")) {
+        // Attempting to get .txt file from FTP server. Create an instance of ftp
+        // client.
         FtpClient ftp = new FtpClient();
 
-        // connect to the ftp server
+        // Connect to the ftp server.
         ftp.connect("jon", "Vibrato2019$");
 
-        // retrieve the file from the ftp server, remember you need to
-        // first upload this file to the ftp server under your user ftp directory
+        // Retrieve the file from the ftp server. Remember you need to
+        // first upload this file to the ftp server under your user ftp directory.
         ftp.getFile(fileName);
 
-        // disconnect from ftp server
+        // Disconnect from ftp server.
         ftp.disconnect();
 
         try {
-          // assign input stream to read the recently ftp-downloaded file
+          // Assign input stream to read the recently ftp-downloaded file. If the file
+          // could not be retrieved from the ftp server, response message is already
+          // initialized.
           fis = new FileInputStream(fileName);
 
-          // else retrieve the text (.txt) file from your local FTP server
           statusLine = version + " 200 OK" + CRLF;
           contentTypeLine = "Content-type: (text/plain)" + CRLF;
 
           fileExists = true;
         } catch (FileNotFoundException e) {
-          statusLine = version + " 404 Not Found" + CRLF;
-          contentTypeLine = "Content-type: (text/html)" + CRLF;
-          entityBody = "<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY>Not Found</BODY></HTML>";
-
-          fileExists = false;
         }
-
       }
-
     }
 
     // Send the status line.

@@ -19,6 +19,14 @@ public class FtpClient {
     private DataOutputStream controlWriter = null;
     private String currentResponse;
 
+    final static int OK_RESPONSE = 220;
+    final static int USER_OK = 331;
+    final static int LOGIN_OK = 230;
+    final static int FILE_ACTION_OK = 250;
+    final static int ENTERING_PASSIVE = 227;
+    final static int FILE_STATUS_OK = 150;
+    final static int FILE_NOT_FOUND = 550;
+
     /*
      * Constructor
      */
@@ -34,32 +42,30 @@ public class FtpClient {
      */
     public void connect(String username, String password) {
         try {
-            // establish the control socket
-            controlSocket = new Socket("127.0.0.1", 21);
+            // Establish the control socket.
+            this.controlSocket = new Socket("127.0.0.1", 21);
 
-            // get references to the socket input and output streams
-            InputStreamReader is = new InputStreamReader(this.controlSocket.getInputStream());
-            this.controlReader = new BufferedReader(is);
+            // Get references to the socket input and output streams.
+            this.controlReader = new BufferedReader(new InputStreamReader(this.controlSocket.getInputStream()));
             this.controlWriter = new DataOutputStream(this.controlSocket.getOutputStream());
 
-            // check if the initial connection response code is OK
-            int OK_RESPONSE = 220;
+            // Check if the initial connection response code is OK.
             if (checkResponse(OK_RESPONSE)) {
                 System.out.println("Succesfully connected to FTP server");
             }
 
             if (FILEZILLA) {
                 for (int i = 0; i < 2; i++) {
-                    currentResponse = controlReader.readLine();
+                    this.currentResponse = this.controlReader.readLine();
                     if (DEBUG) {
-                        System.out.println("Current FTP response: " + currentResponse);
+                        System.out.println("Current FTP response: " + this.currentResponse);
                     }
                 }
             }
 
-            // send user name and password to ftp server
-            sendCommand("USER " + username + CRLF, 331);
-            sendCommand("PASS " + password + CRLF, 230);
+            // Send user name and password to ftp server.
+            sendCommand("USER " + username + CRLF, USER_OK);
+            sendCommand("PASS " + password + CRLF, LOGIN_OK);
 
         } catch (UnknownHostException ex) {
             System.out.println("UnknownHostException: " + ex);
@@ -74,26 +80,28 @@ public class FtpClient {
      * @param file_name: the name of the file to retrieve
      */
     public void getFile(String file_name) {
-        // initialize the data port
+        // Initialize the data port.
         int data_port = 0;
 
         try {
-            // change to current (root) directory first
-            sendCommand("CWD ~" + CRLF, 250);
+            // Change to current (root) directory first.
+            sendCommand("CWD ~" + CRLF, FILE_ACTION_OK);
 
-            // set to passive mode and retrieve the data port number from response
-            currentResponse = sendCommand("PASV" + CRLF, 227);
-            data_port = extractDataPort(currentResponse);
+            // Set to passive mode and retrieve the data port number from response.
+            this.currentResponse = sendCommand("PASV" + CRLF, ENTERING_PASSIVE);
+            data_port = extractDataPort(this.currentResponse);
 
-            // connect to the data port
+            // Connect to the data port.
             Socket data_socket = new Socket("127.0.0.1", data_port);
             DataInputStream data_reader = new DataInputStream(data_socket.getInputStream());
 
-            // download file from ftp server
-            currentResponse = sendCommand("RETR " + file_name + CRLF, 150);
+            // Download file from ftp server.
+            this.currentResponse = sendCommand("RETR " + file_name + CRLF, FILE_STATUS_OK);
 
-            // check if the transfer was succesful
-            if (currentResponse.startsWith(String.valueOf(226))) {
+            // Check if the transfer was succesful. Not using checkResponse here because
+            // vsftpd does not send another response if the file doesn't exist. Thread
+            // blocks on checkResponse otherwise.
+            if (!this.currentResponse.startsWith(String.valueOf(FILE_NOT_FOUND))) {
                 // Write data on a local file
                 createLocalFile(data_reader, file_name);
             }
@@ -112,9 +120,9 @@ public class FtpClient {
      */
     public void disconnect() {
         try {
-            controlReader.close();
-            controlWriter.close();
-            controlSocket.close();
+            this.controlReader.close();
+            this.controlWriter.close();
+            this.controlSocket.close();
         } catch (IOException ex) {
             System.out.println("IOException: " + ex);
         }
@@ -132,16 +140,16 @@ public class FtpClient {
     private String sendCommand(String command, int expected_response_code) {
         String response = "";
         try {
-            // send command to the ftp server
-            controlWriter.writeBytes(command);
+            // Send command to the ftp server.
+            this.controlWriter.writeBytes(command);
 
-            // get response from ftp server
-            response = controlReader.readLine();
+            // Get response from ftp server.
+            response = this.controlReader.readLine();
             if (DEBUG) {
                 System.out.println("Current FTP response: " + response);
             }
 
-            // check validity of response
+            // Check validity of response.
             if (!response.startsWith(String.valueOf(expected_response_code))) {
                 throw new IOException("Bad response: " + response);
             }
@@ -164,15 +172,15 @@ public class FtpClient {
         boolean response_status = true;
 
         try {
-            currentResponse = controlReader.readLine();
+            this.currentResponse = this.controlReader.readLine();
 
             if (DEBUG) {
-                System.out.println("Current FTP response: " + currentResponse);
+                System.out.println("Current FTP response: " + this.currentResponse);
             }
 
-            if (!currentResponse.startsWith(String.valueOf(expected_code))) {
+            if (!this.currentResponse.startsWith(String.valueOf(expected_code))) {
                 response_status = false;
-                throw new IOException("Bad response: " + currentResponse);
+                throw new IOException("Bad response: " + this.currentResponse);
             }
         } catch (IOException ex) {
             System.out.println("IOException: " + ex);
