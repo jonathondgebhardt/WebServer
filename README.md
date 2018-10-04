@@ -11,6 +11,8 @@ GitHub: https://github.com/jonathondgebhardt/WebServer
 
 - Jonathon Gebhardt
 
-## Acknowledgments
+## References
 
-- Thanks to PurpleBooth for a convenient template and an introduction to markdown!
+- ghost.jpg: http://worldartsme.com/ghost-patterns-clipart.html#gal_post_93900_ghost-patterns-clipart-1.jpg
+- ghost.gif: https://gifer.com/en/kgN
+- secret.txt (actually just Smash Mouth - All Star lyrics): https://genius.com/Smash-mouth-all-star-lyrics
