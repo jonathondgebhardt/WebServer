@@ -1,31 +1,30 @@
+
+/**
+ * Assignment 1
+ * Jonathon Gebhardt
+ **/
+
 import java.io.*;
 import java.net.*;
 import java.util.regex.*;
-
-/**
- * Class: CEG4400-01 Assignment: Project 01 Instructor: Dr. Bin Wang TA: Steve
- * Betts
- * 
- * @author Jonathon Gebhardt
- */
 
 public class FtpClient {
 
     final static String CRLF = "\r\n";
     private boolean FILEZILLA = false; // Enabled if connecting to FILEZILLA Server
-    private boolean DEBUG = true; // Debug Flag
+    private boolean DEBUG = false; // Debug Flag
     private Socket controlSocket = null;
     private BufferedReader controlReader = null;
     private DataOutputStream controlWriter = null;
     private String currentResponse;
 
-    final static int OK_RESPONSE = 220;
-    final static int USER_OK = 331;
-    final static int LOGIN_OK = 230;
-    final static int FILE_ACTION_OK = 250;
-    final static int ENTERING_PASSIVE = 227;
-    final static int FILE_STATUS_OK = 150;
-    final static int FILE_NOT_FOUND = 550;
+    private final static int OK_RESPONSE = 220;
+    private final static int USER_OK = 331;
+    private final static int LOGIN_OK = 230;
+    private final static int FILE_ACTION_OK = 250;
+    private final static int ENTERING_PASSIVE = 227;
+    private final static int FILE_STATUS_OK = 150;
+    private final static int FILE_NOT_FOUND = 550;
 
     /*
      * Constructor
