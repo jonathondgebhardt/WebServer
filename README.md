@@ -15,3 +15,4 @@ GitHub: https://github.com/jonathondgebhardt/WebServer
 
 - ghost.jpg: http://worldartsme.com/ghost-patterns-clipart.html#gal_post_93900_ghost-patterns-clipart-1.jpg
 - ghost.gif: https://gifer.com/en/kgN
+- secret.txt (actually just Smash Mouth - All Star lyrics): https://genius.com/Smash-mouth-all-star-lyrics
