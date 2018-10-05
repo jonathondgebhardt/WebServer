@@ -114,7 +114,7 @@ final class HttpRequest implements Runnable {
         FtpClient ftp = new FtpClient();
 
         // Connect to the ftp server.
-        ftp.connect("jon", "Vibrato$");
+        ftp.connect("", "");
 
         // Retrieve the file from the ftp server. Remember you need to
         // first upload this file to the ftp server under your user ftp directory.
