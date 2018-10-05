@@ -62,7 +62,8 @@ public class FtpClient {
                 }
             }
 
-            // Send user name and password to ftp server.
+            // Send user name and password to ftp server. It's OK if we don't have a
+            // successful login here due to the logic in HttpRequest.
             sendCommand("USER " + username + CRLF, USER_OK);
             sendCommand("PASS " + password + CRLF, LOGIN_OK);
 
@@ -86,7 +87,8 @@ public class FtpClient {
             // Change to current (root) directory first.
             sendCommand("CWD ~" + CRLF, FILE_ACTION_OK);
 
-            // Set to passive mode and retrieve the data port number from response.
+            // Set to passive mode and retrieve the data port number from response. If the
+            // login is unsuccessful, we will not be able to extract the data port.
             this.currentResponse = sendCommand("PASV" + CRLF, ENTERING_PASSIVE);
             data_port = extractDataPort(this.currentResponse);
 
@@ -111,6 +113,8 @@ public class FtpClient {
             System.out.println("UnknownHostException: " + ex);
         } catch (IOException ex) {
             System.out.println("IOException: " + ex);
+        } catch (Exception ex) {
+            System.out.println("Exception: " + ex);
         }
     }
 

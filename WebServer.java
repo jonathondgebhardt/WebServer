@@ -114,7 +114,7 @@ final class HttpRequest implements Runnable {
         FtpClient ftp = new FtpClient();
 
         // Connect to the ftp server.
-        ftp.connect("jon", "Vibrato2019$");
+        ftp.connect("jon", "Vibrato$");
 
         // Retrieve the file from the ftp server. Remember you need to
         // first upload this file to the ftp server under your user ftp directory.
@@ -157,7 +157,7 @@ final class HttpRequest implements Runnable {
       os.writeBytes(entityBody);
     }
 
-    String serverResponse = statusLine + "\n" + contentTypeLine;
+    String serverResponse = statusLine + contentTypeLine;
     System.out.println("\nResponse:\n-------------\n" + serverResponse + "\n");
 
     // Close streams and socket.
